@@ -1,25 +1,33 @@
-const express = require('express')
+const express = require("express");
+const {
+  getAllContacts,
+  getById,
+  add,
+  update,
+  remove,
+} = require("../../controllers/contactsControllers.js");
+const isEmtyBody = require("../../middlewars/isEmptyBody");
+const {
+  addContactSchema,
+  updateContactSchema,
+} = require("../../schemas/contactsSchemas.js");
+const { validaterBody } = require("../../decorators/index.js");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/", getAllContacts);
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/:contactId", getById);
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.post("/", isEmtyBody, validaterBody(addContactSchema), add);
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.delete("/:contactId", remove);
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.put(
+  "/:contactId",
+  isEmtyBody,
+  validaterBody(updateContactSchema),
+  update
+);
 
-module.exports = router
+module.exports = router;
