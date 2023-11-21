@@ -10,24 +10,34 @@ const isEmtyBody = require("../../middlewars/isEmptyBody");
 const {
   addContactSchema,
   updateContactSchema,
+  updateContactStatusSchema,
 } = require("../../schemas/contactsSchemas.js");
-const { validaterBody } = require("../../decorators/index.js");
+const { validaterBody, ctrlWrapper } = require("../../decorators/index.js");
+const isValidId = require("../../middlewars/isValidId.js");
 
 const router = express.Router();
 
-router.get("/", getAllContacts);
+router.get("/", ctrlWrapper(getAllContacts));
 
-router.get("/:contactId", getById);
+router.get("/:contactId", isValidId, ctrlWrapper(getById));
 
-router.post("/", isEmtyBody, validaterBody(addContactSchema), add);
+router.post("/", isEmtyBody, validaterBody(addContactSchema), ctrlWrapper(add));
 
-router.delete("/:contactId", remove);
+router.delete("/:contactId", isValidId, ctrlWrapper(remove));
 
 router.put(
   "/:contactId",
+  isValidId,
   isEmtyBody,
   validaterBody(updateContactSchema),
-  update
+  ctrlWrapper(update)
+);
+router.patch(
+  "/:contactId/favorite",
+  isValidId,
+  isEmtyBody,
+  validaterBody(updateContactStatusSchema),
+  ctrlWrapper(update)
 );
 
 module.exports = router;
