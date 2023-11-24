@@ -10,17 +10,22 @@ const HttpError = require("../helpers/HttpError.js");
 
 class ContactsController {
   getAllContacts = async (req, res) => {
-    const result = await findAllContacts();
+    const { _id: owner } = req.user;
+    const { page, limit, favorite } = req.query;
+    const skip = (page - 1) * limit;
+
+    const result = await findAllContacts({ owner, favorite }, skip, limit);
     if (!result) {
-      throw HttpError(400, "Unable to cars");
+      throw HttpError(400, "Unable to contacts");
     }
     res.json(result);
   };
 
   getById = async (req, res) => {
     const { contactId } = req.params;
+    const { _id: owner } = req.user;
 
-    const result = await findById(contactId);
+    const result = await findById({ _id: contactId, owner });
 
     if (!result) {
       throw HttpError(404, "Not Found");
@@ -29,15 +34,15 @@ class ContactsController {
   };
 
   add = async (req, res) => {
-    const result = await addContact({ ...req.body });
+    const { _id: owner } = req.user;
+    const result = await addContact({ ...req.body, owner });
     res.status(201).json(result);
   };
 
   update = async (req, res) => {
     const { contactId } = req.params;
-    const result = await updateContact(contactId, {
-      ...req.body,
-    });
+    const { _id: owner } = req.user;
+    const result = await updateContact({ _id: contactId, owner }, req.body);
     if (!result) {
       throw HttpError(404, "Not Found");
     }
@@ -46,7 +51,8 @@ class ContactsController {
 
   remove = async (req, res) => {
     const { contactId } = req.params;
-    const result = await removeContact(contactId);
+    const { _id: owner } = req.user;
+    const result = await removeContact({ _id: contactId, owner });
     if (!result) {
       throw HttpError(404, "Not Found");
     }

@@ -1,13 +1,20 @@
 const Contact = require("../models/Contact.js");
 
 class ContactsService {
-  findAllContacts = async () => {
-    const contacts = await Contact.find({});
+  findAllContacts = async ({ owner, favorite }, skip, limit) => {
+    const contacts = await Contact.find(
+      { owner, favorite },
+      "-createdAt -updatedAt",
+      {
+        skip,
+        limit,
+      }
+    );
     return contacts ? contacts : null;
   };
 
-  findById = async (contactId) => {
-    const contact = await Contact.findById(contactId);
+  findById = async ({ _id: contactId, owner }) => {
+    const contact = await Contact.findOne({ _id: contactId, owner });
     return contact || null;
   };
 
@@ -16,13 +23,16 @@ class ContactsService {
     return contact || null;
   };
 
-  updateContact = async (id, data) => {
-    const contact = await Contact.findByIdAndUpdate(id, { ...data });
+  updateContact = async ({ _id: contactId, owner }, data) => {
+    const contact = await Contact.findOneAndUpdate(
+      { _id: contactId, owner },
+      data
+    );
     return contact || null;
   };
 
-  removeContact = async (id) => {
-    const contact = await Contact.findByIdAndDelete(id);
+  removeContact = async ({ _id: contactId, owner }) => {
+    const contact = await Contact.findOneAndDelete({ _id: contactId, owner });
     return contact || null;
   };
 }

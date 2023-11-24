@@ -6,36 +6,48 @@ const {
   update,
   remove,
 } = require("../../controllers/contactsControllers.js");
-const isEmtyBody = require("../../middlewars/isEmptyBody");
+const {
+  isEmptyBody,
+  isValidId,
+  isValidToken,
+} = require("../../middlewars/index.js");
 const {
   addContactSchema,
   updateContactSchema,
   updateContactStatusSchema,
 } = require("../../schemas/contactsSchemas.js");
 const { validaterBody, ctrlWrapper } = require("../../decorators/index.js");
-const isValidId = require("../../middlewars/isValidId.js");
 
 const router = express.Router();
+router.use(isValidToken);
 
 router.get("/", ctrlWrapper(getAllContacts));
 
 router.get("/:contactId", isValidId, ctrlWrapper(getById));
 
-router.post("/", isEmtyBody, validaterBody(addContactSchema), ctrlWrapper(add));
+router.post(
+  "/",
+
+  isEmptyBody,
+  validaterBody(addContactSchema),
+  ctrlWrapper(add)
+);
 
 router.delete("/:contactId", isValidId, ctrlWrapper(remove));
 
 router.put(
   "/:contactId",
+
   isValidId,
-  isEmtyBody,
+  isEmptyBody,
   validaterBody(updateContactSchema),
   ctrlWrapper(update)
 );
 router.patch(
   "/:contactId/favorite",
+
   isValidId,
-  isEmtyBody,
+  isEmptyBody,
   validaterBody(updateContactStatusSchema),
   ctrlWrapper(update)
 );
