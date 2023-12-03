@@ -11,8 +11,12 @@ const userSignSchema = Joi.object({
 const userUpdateStatusSchema = Joi.object({
   subscription: Joi.string().required(),
 });
+const userUpdateAvatarSchema = Joi.object({
+  avatar: Joi.string().required(),
+});
 
 module.exports = {
   userSignSchema,
   userUpdateStatusSchema,
+  userUpdateAvatarSchema,
 };
