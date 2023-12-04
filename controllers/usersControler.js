@@ -1,10 +1,12 @@
 const HttpError = require("../helpers/HttpError.js");
+const User = require("../models/User.js");
 
 const {
   register,
   login,
   logout,
   changeStatus,
+  changeAvatar,
 } = require("../services/UserAuthService.js");
 
 class UsersController {
@@ -16,6 +18,7 @@ class UsersController {
       user: {
         email: newUser.email,
         subscription: newUser.subscription,
+        avatarURL: newUser.avatarURL,
       },
     });
   };
@@ -30,6 +33,7 @@ class UsersController {
       user: {
         email: updatedUser.email,
         subscription: updatedUser.subscription,
+        avatarURL: updatedUser.avatarURL,
       },
     });
   };
@@ -67,6 +71,16 @@ class UsersController {
         email: user.email,
         subscription,
       },
+    });
+  };
+
+  onChangeAvatar = async (req, res) => {
+    const { _id, avatarURL } = req.user;
+    const { path: oldPath, filename } = req.file;
+
+    const avatar = await changeAvatar(_id, oldPath, filename);
+    res.status(201).json({
+      avatarURL: avatar.avatarURL,
     });
   };
 }

@@ -2,6 +2,7 @@ const express = require("express");
 const {
   userSignSchema,
   userUpdateStatusSchema,
+  userUpdateAvatarSchema,
 } = require("../../schemas/usersSchemas");
 const {
   signUp,
@@ -9,14 +10,20 @@ const {
   logOut,
   getCurrentUser,
   onChangeSubscription,
+  onChangeAvatar,
 } = require("../../controllers/usersControler");
 const { validaterBody, ctrlWrapper } = require("../../decorators/index.js");
-const { isEmptyBody, isValidToken } = require("../../middlewars/index.js");
+const {
+  isEmptyBody,
+  isValidToken,
+  upload,
+} = require("../../middlewars/index.js");
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/register",
+  upload.single("avatar"),
   isEmptyBody,
   validaterBody(userSignSchema),
   ctrlWrapper(signUp)
@@ -34,6 +41,13 @@ authRouter.patch(
   isValidToken,
   validaterBody(userUpdateStatusSchema),
   onChangeSubscription
+);
+authRouter.patch(
+  "/avatars",
+  upload.single("avatar"),
+  isValidToken,
+  validaterBody(userUpdateAvatarSchema),
+  onChangeAvatar
 );
 
 module.exports = authRouter;
