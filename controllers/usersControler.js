@@ -1,5 +1,4 @@
-const HttpError = require("../helpers/HttpError.js");
-const User = require("../models/User.js");
+const HttpError = require("../helpers/index.js");
 
 const {
   register,
@@ -7,10 +6,13 @@ const {
   logout,
   changeStatus,
   changeAvatar,
+  sendVerifyEmail,
+  resendEmail,
 } = require("../services/UserAuthService.js");
 
 class UsersController {
   signUp = async (req, res) => {
+    console.log(req.body);
     const { email, password } = req.body;
     const newUser = await register(email, password, req.body);
 
@@ -82,6 +84,20 @@ class UsersController {
     res.status(201).json({
       avatarURL: avatar.avatarURL,
     });
+  };
+  verifyEmail = async (req, res) => {
+    const { verifiedCode } = req.params;
+
+    await sendVerifyEmail(verifiedCode);
+
+    res.status(200).json({ message: "Successful verification" });
+  };
+
+  sendVerifyMore = async (req, res) => {
+    const { email } = req.body;
+
+    await resendEmail(email);
+    res.status(200).json({ message: "Verification email sent" });
   };
 }
 

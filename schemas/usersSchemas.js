@@ -15,8 +15,13 @@ const userUpdateAvatarSchema = Joi.object({
   avatar: Joi.string().required(),
 });
 
+const userSendVerifySchema = Joi.object({
+  email: Joi.string().pattern(validEmail).required(),
+});
+
 module.exports = {
   userSignSchema,
   userUpdateStatusSchema,
   userUpdateAvatarSchema,
+  userSendVerifySchema,
 };

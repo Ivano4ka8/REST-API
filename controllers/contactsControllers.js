@@ -6,7 +6,7 @@ const {
   updateContact,
 } = require("../services/ContactsService");
 
-const HttpError = require("../helpers/HttpError.js");
+const HttpError = require("../helpers/index");
 
 class ContactsController {
   getAllContacts = async (req, res) => {
