@@ -1,12 +1,13 @@
 const User = require("../models/User.js");
-const HttpError = require("../helpers/HttpError");
+const { HttpError, sendEmail } = require("../helpers/index");
 const bcrypt = require("bcryptjs");
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, BASE_URL } = process.env;
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const fs = require("fs/promises");
 const path = require("path");
 const Jimp = require("jimp");
+const { nanoid } = require("nanoid");
 
 const avatarPath = path.resolve("public", "avatars");
 
@@ -16,12 +17,20 @@ class UserAuthService {
     if (user) {
       throw HttpError(409, "Email in use");
     }
+    const verifiedCode = nanoid();
     const avatar = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
+    const verifyEmail = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verifiedCode}">Click verify email</a>`,
+    };
+    await sendEmail(verifyEmail);
     const newUser = await User.create({
       ...data,
       password: hashPassword,
       avatarURL: avatar,
+      verifiedCode,
     });
 
     return newUser || null;
@@ -30,6 +39,9 @@ class UserAuthService {
     const user = await User.findOne({ email });
     if (!user) {
       throw HttpError(401, "Email or password is wrong");
+    }
+    if (!user.verify) {
+      throw HttpError(401, "Email not verify");
     }
     const passwordCompare = bcrypt.compare(password, user.password);
     if (!passwordCompare) {
@@ -77,6 +89,36 @@ class UserAuthService {
       avatarURL: newAvatarUrl,
     });
     return avatar || null;
+  };
+
+  sendVerifyEmail = async (verifiedCode) => {
+    const user = await User.findOne({ verifiedCode });
+
+    if (!user) {
+      throw HttpError(404, "User not Found");
+    }
+    await User.findByIdAndUpdate(user._id, {
+      verifiedCode: "",
+      verify: true,
+    });
+  };
+
+  resendEmail = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw HttpError(404, "User not Found");
+    }
+
+    if (user.verify) {
+      throw HttpError(400, "Verification has already been passed");
+    }
+
+    const verifyEmail = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verifiedCode}">Click verify email</a>`,
+    };
+    await sendEmail(verifyEmail);
   };
 }
 

@@ -3,6 +3,7 @@ const {
   userSignSchema,
   userUpdateStatusSchema,
   userUpdateAvatarSchema,
+  userSendVerifySchema,
 } = require("../../schemas/usersSchemas");
 const {
   signUp,
@@ -11,6 +12,8 @@ const {
   getCurrentUser,
   onChangeSubscription,
   onChangeAvatar,
+  verifyEmail,
+  sendVerifyMore,
 } = require("../../controllers/usersControler");
 const { validaterBody, ctrlWrapper } = require("../../decorators/index.js");
 const {
@@ -28,6 +31,15 @@ authRouter.post(
   validaterBody(userSignSchema),
   ctrlWrapper(signUp)
 );
+authRouter.get("/verify/:verifiedCode", ctrlWrapper(verifyEmail));
+
+authRouter.post(
+  "/verify",
+  isEmptyBody,
+  validaterBody(userSendVerifySchema),
+  ctrlWrapper(sendVerifyMore)
+);
+
 authRouter.post(
   "/login",
   isEmptyBody,

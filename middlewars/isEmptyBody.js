@@ -1,4 +1,4 @@
-const HttpError = require("../helpers/HttpError.js");
+const HttpError = require("../helpers/index");
 
 const isEmtyBody = async (req, res, next) => {
   const keys = Object.keys(req.body);
